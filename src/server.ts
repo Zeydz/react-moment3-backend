@@ -2,12 +2,14 @@ import fastify, { FastifyReply, FastifyRequest } from "fastify";
 import authRoutes from "./routes/auth";
 import fastifyCookie from "@fastify/cookie";
 import fastifyJwt from "@fastify/jwt";
+import postRoutes from "./routes/posts";
 
 const app = fastify({
   logger: true,
 });
 
 app.register(fastifyCookie);
+app.register(postRoutes);
 
 /* Create JWT */
 app.register(fastifyJwt, {
