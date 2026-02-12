@@ -9,7 +9,12 @@ const app = fastify({
 });
 
 app.register(fastifyCookie);
-app.register(postRoutes);
+
+/* Cors */
+app.register(require("@fastify/cors"), {
+  origin: true,
+  credentials: true
+});
 
 /* Create JWT */
 app.register(fastifyJwt, {
@@ -31,6 +36,9 @@ app.decorate("authenticate", async (request: FastifyRequest, reply: FastifyReply
     return reply.status(401).send({ error: "Unauthorized" });
   }
 });
+
+/* Register post routes after JWT and authenticate decorator are available */
+app.register(postRoutes);
 
 app.get("/", async function (request, reply) {
   return { hello: "world" };
