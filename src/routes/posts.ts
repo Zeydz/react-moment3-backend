@@ -48,35 +48,37 @@ export default async function postRoutes(fastify: FastifyInstance) {
   );
 
   /* Create new post */
-  fastify.post("/posts", async (request, reply) => {
-    try {
-      const { title, content } = request.body as any;
+  fastify.post(
+    "/posts",
+    { preValidation: [fastify.authenticate] },
+    async (request, reply) => {
+      try {
+        const { title, content } = request.body as any;
 
-      if (!title || !content) {
-        return reply
-          .status(400)
-          .send({ error: "Title and content are required" });
+        if (!title || !content) {
+          return reply
+            .status(400)
+            .send({ error: "Title and content are required" });
+        }
+        const post = await prisma.post.create({
+          data: {
+            title,
+            content,
+          },
+        });
+        return reply.status(201).send(post);
+      } catch (error) {
+        console.error(error);
+        return reply.status(500).send({ error: "Internal server error" });
       }
-      const post = await prisma.post.create({
-        data: {
-          title,
-          content,
-        },
-      });
-      return reply.status(201).send(post);
-    } catch (error) {
-      console.error(error);
-      return reply.status(500).send({ error: "Internal server error" });
-    }
-  });
+    },
+  );
 
   /* Delete post */
-  fastify.delete(
+  fastify.delete<{ Params: { id: string } }>(
     "/posts/:id",
-    async (
-      request: FastifyRequest<{ Params: { id: string } }>,
-      reply: FastifyReply,
-    ) => {
+    { preValidation: [fastify.authenticate] },
+    async (request, reply) => {
       try {
         /* Parse ID */
         const postId = parseInt(request.params.id as string);
@@ -110,12 +112,10 @@ export default async function postRoutes(fastify: FastifyInstance) {
   }
 
   /* Edit post */
-  fastify.put(
+  fastify.put<{ Params: { id: string }; Body: PostBody }>(
     "/posts/:id",
-    async (
-      request: FastifyRequest<{ Params: { id: string }; Body: PostBody }>,
-      reply: FastifyReply,
-    ) => {
+    { preValidation: [fastify.authenticate] },
+    async (request, reply) => {
       try {
         /* Parse ID */
         const postId = parseInt(request.params.id as string);
