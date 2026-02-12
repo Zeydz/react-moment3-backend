@@ -1,5 +1,6 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { prisma } from "../plugins/db";
+import { postBodySchema } from "../schemas/post.schema";
 
 export default async function postRoutes(fastify: FastifyInstance) {
   /* Get all posts */
@@ -50,16 +51,15 @@ export default async function postRoutes(fastify: FastifyInstance) {
   /* Create new post */
   fastify.post(
     "/posts",
-    { preValidation: [fastify.authenticate] },
+    { preValidation: [fastify.authenticate], schema: { body: postBodySchema } },
     async (request, reply) => {
       try {
         const { title, content } = request.body as any;
 
-        if (!title || !content) {
-          return reply
-            .status(400)
-            .send({ error: "Title and content are required" });
+        if(!title.trim() || !content.trim()) {
+          return reply.status(400).send({ error: "Title and content cannot be empty" });
         }
+
         const post = await prisma.post.create({
           data: {
             title,
