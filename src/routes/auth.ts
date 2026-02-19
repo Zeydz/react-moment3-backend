@@ -91,7 +91,7 @@ export default async function authRoutes(fastify: FastifyInstance) {
   /* LOGOUT USER */
   fastify.post("/auth/logout", async (request, reply) => {
     try {
-      reply.clearCookie("token", { path: "/" });
+      reply.clearCookie("token", { path: "/", sameSite: "none", secure: true });
       return reply.send({ message: "Logged out" });
     } catch (error) {
       console.error(error);
