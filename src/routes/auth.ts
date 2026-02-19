@@ -87,4 +87,15 @@ export default async function authRoutes(fastify: FastifyInstance) {
       return reply.status(500).send({ error: "Internal server error" });
     }
   });
+
+  /* LOGOUT USER */
+  fastify.post("/auth/logout", async (request, reply) => {
+    try {
+      reply.clearCookie("token", { path: "/" });
+      return reply.send({ message: "Logged out" });
+    } catch (error) {
+      console.error(error);
+      return reply.status(500).send({ error: "Internal server error" });
+    }
+  });
 }
