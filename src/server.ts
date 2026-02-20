@@ -13,7 +13,9 @@ app.register(fastifyCookie);
 /* Cors */
 app.register(require("@fastify/cors"), {
   origin: true,
-  credentials: true
+  credentials: true,
+  methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"]
 });
 
 /* Create JWT */
@@ -28,7 +30,7 @@ app.register(fastifyJwt, {
   },
 });
 
-/* Authenticate decorator, since Fastify doesnt provide authentication strategies  */
+/* Authenticate decorator, since Fastify doesn't provide authentication strategies  */
 app.decorate("authenticate", async (request: FastifyRequest, reply: FastifyReply) => {
   try {
     await request.jwtVerify();
